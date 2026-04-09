@@ -1,0 +1,33 @@
+{
+  "name": "agent-scripts",
+  "version": "1.0.0",
+  "description": "Scaffold AGENTS.md and supporting docs for AI coding agents",
+  "type": "module",
+  "bin": {
+    "agent-scripts": "./bin/cli.mjs"
+  },
+  "files": [
+    "bin/",
+    "src/",
+    "templates/"
+  ],
+  "keywords": [
+    "ai",
+    "agents",
+    "coding-agents",
+    "scaffolding",
+    "documentation",
+    "cursor",
+    "copilot",
+    "warp"
+  ],
+  "author": "Ryan Holmes",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": ""
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
