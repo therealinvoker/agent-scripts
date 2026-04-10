@@ -176,3 +176,4 @@ Add a section to your project's `AGENTS.md` or create a standalone rules file:
 - [ ] Configured at least one MCP server (Step 3)
 - [ ] Validated the agent can read from connected sources (Step 4)
 - [ ] Documented agent permissions and boundaries (Step 5)
+- [ ] Remove the line `> Read docs/AGENT_SETUP.md and follow the instructions there before proceeding.` from `AGENTS.md`

@@ -78,8 +78,8 @@ All files present, but 1 warning(s). Fill in placeholder comments.
 
 This package includes two setup guides:
 
-- **[AGENT_DEVELOPER_SETUP.md](./AGENT_DEVELOPER_SETUP.md)** — How to write effective `AGENTS.md` files: conventions, the full template, docs structure, keeping docs current, and a setup checklist.
-- **[AGENT_EXECUTIVE_SETUP.md](./AGENT_EXECUTIVE_SETUP.md)** — Executive onboarding: identify business pain points, map them to MCP servers, configure connections, validate setup, and define agent boundaries.
+- **[agent/DEVELOPER_SETUP.md](./agent/DEVELOPER_SETUP.md)** — How to write effective `AGENTS.md` files: conventions, the full template, docs structure, keeping docs current, and a setup checklist.
+- **[agent/EXECUTIVE_SETUP.md](./agent/EXECUTIVE_SETUP.md)** — Executive onboarding: identify business pain points, map them to MCP servers, configure connections, validate setup, and define agent boundaries.
 
 ## License
 

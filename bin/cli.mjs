@@ -17,21 +17,23 @@ Options:
   --force    Overwrite existing files (default: skip existing)
 `;
 
-switch (command) {
-  case 'init':
-    await init({ force: args.includes('--force') });
-    break;
-  case 'check':
-    await check();
-    break;
-  case 'help':
-  case '--help':
-  case '-h':
-  case undefined:
-    console.log(HELP.trim());
-    break;
-  default:
-    console.error(`Unknown command: ${command}`);
-    console.log(HELP.trim());
-    process.exit(1);
-}
+(async () => {
+  switch (command) {
+    case 'init':
+      await init({ force: args.includes('--force') });
+      break;
+    case 'check':
+      await check();
+      break;
+    case 'help':
+    case '--help':
+    case '-h':
+    case undefined:
+      console.log(HELP.trim());
+      break;
+    default:
+      console.error(`Unknown command: ${command}`);
+      console.log(HELP.trim());
+      process.exit(1);
+  }
+})();

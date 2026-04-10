@@ -231,3 +231,4 @@ When setting up agent docs for a new project:
 - [ ] Verify all screens/routes are listed
 - [ ] Verify all key files are listed
 - [ ] Confirm the doc update convention is in your Conventions section
+- [ ] Remove the line `> Read docs/AGENT_SETUP.md and follow the instructions there before proceeding.` from `AGENTS.md`
