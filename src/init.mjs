@@ -1,7 +1,48 @@
+import { execFileSync } from 'node:child_process';
 import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { basename, dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import * as p from '@clack/prompts';
+
+const DEVELOPER_AGENT_FILE = 'DEVELOPER_SETUP.md';
+
+/** @param {string} raw */
+function parseGitRemoteToSlug(raw) {
+  const url = raw.trim();
+  const ssh = url.match(/^[^@]+@[^:]+:([^/]+)\/(.+?)(?:\.git)?$/);
+  if (ssh) return `${ssh[1]}/${ssh[2]}`;
+  const scp = url.match(/^ssh:\/\/[^/]+\/([^/]+)\/(.+?)(?:\.git)?$/);
+  if (scp) return `${scp[1]}/${scp[2]}`;
+  try {
+    const u = new URL(url);
+    const path = u.pathname.replace(/^\/+/, '').replace(/\.git$/, '');
+    const parts = path.split('/').filter(Boolean);
+    if (parts.length >= 2) return `${parts[0]}/${parts.slice(1).join('/')}`;
+  } catch {
+    /* ignore */
+  }
+  return null;
+}
+
+/** @param {string} cwd */
+function getOriginRepoSlug(cwd) {
+  try {
+    const out = execFileSync('git', ['config', '--get', 'remote.origin.url'], {
+      cwd,
+      encoding: 'utf-8',
+      stdio: ['ignore', 'pipe', 'ignore'],
+    }).trim();
+    return parseGitRemoteToSlug(out);
+  } catch {
+    const configPath = join(cwd, '.git', 'config');
+    if (!existsSync(configPath)) return null;
+    const config = readFileSync(configPath, 'utf-8');
+    const block = config.match(/\[remote "origin"\][^\[]*/s);
+    if (!block) return null;
+    const line = block[0].match(/^\s*url\s*=\s*(.+)$/m);
+    return line ? parseGitRemoteToSlug(line[1].trim()) : null;
+  }
+}
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const TEMPLATES_DIR = join(__dirname, '..', 'templates');
@@ -86,10 +127,26 @@ export async function init({ force = false } = {}) {
 
   const agentType = agentTypes.find(t => t.value === selected);
 
-  p.note(
-    `You are installing into: ${cwd}\n\nMake sure this is the right directory.\nFor developers, this should be your git root.`,
-    'Heads up'
-  );
+  if (selected === DEVELOPER_AGENT_FILE) {
+    const hasGit = existsSync(join(cwd, '.git'));
+    const slug = hasGit ? getOriginRepoSlug(cwd) : null;
+    let message;
+    if (hasGit && slug) {
+      message = `Developers, this is the repo for ${slug}. Continue?`;
+    } else if (hasGit) {
+      message = `Developers, you're installing into "${projectName}" (no origin URL detected). Continue?`;
+    } else {
+      message =
+        'No `.git` directory here. Developer agent docs are usually installed at the git repository root. Continue anyway?';
+    }
+    const proceed = await p.confirm({ message, initialValue: true });
+    if (p.isCancel(proceed) || !proceed) {
+      p.cancel('Cancelled.');
+      process.exit(0);
+    }
+  } else {
+    p.note(`You are installing into:\n${cwd}\n\nMake sure this is the right directory.`, 'Heads up');
+  }
 
   const FILES = [
     { src: join(TEMPLATES_DIR, 'AGENTS.md'), dest: 'AGENTS.md', isTemplate: true },
