@@ -4,8 +4,6 @@ import { basename, dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import * as p from '@clack/prompts';
 
-const DEVELOPER_AGENT_FILE = 'DEVELOPER_SETUP.md';
-
 /** @param {string} raw */
 function parseGitRemoteToSlug(raw) {
   const url = raw.trim();
@@ -127,7 +125,7 @@ export async function init({ force = false } = {}) {
 
   const agentType = agentTypes.find(t => t.value === selected);
 
-  if (selected === DEVELOPER_AGENT_FILE) {
+  if (agentType.name.toLowerCase().includes('developer')) {
     const hasGit = existsSync(join(cwd, '.git'));
     const slug = hasGit ? getOriginRepoSlug(cwd) : null;
     let message;
