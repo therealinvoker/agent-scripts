@@ -105,6 +105,30 @@ See `docs/ARCHITECTURE.md` for full system diagram, directory structure, API lay
 
 ---
 
+## Handling Secrets
+
+When a developer needs to add an API token or secret to their environment, never ask them to paste it in plain text. Use this pattern to prompt for the value silently, write it to `~/.zshrc`, and clean it from memory immediately:
+
+```bash
+read -s 'TOKEN?Paste <SERVICE> token: ' && echo "export <VAR_NAME>=\"$TOKEN\"" >> ~/.zshrc && source ~/.zshrc && unset TOKEN && echo "Done"
+```
+
+For example, to set a Jira API token:
+
+```bash
+read -s 'TOKEN?Paste Jira token: ' && echo "export JIRA_API_TOKEN=\"$TOKEN\"" >> ~/.zshrc && source ~/.zshrc && unset TOKEN && echo "Done"
+```
+
+**What this does:**
+- `read -s` — reads input silently (no echo to terminal)
+- Appends the export to `~/.zshrc` so it persists across sessions
+- `source ~/.zshrc` — activates it immediately in the current session
+- `unset TOKEN` — removes it from shell memory after writing
+
+Replace `<SERVICE>` with the service name and `<VAR_NAME>` with the env var name listed in `AGENTS.md`. Always run one token at a time.
+
+---
+
 ## CLAUDE.md — Claude Code Support
 
 Claude Code does **not** read `AGENTS.md` natively. It uses its own `CLAUDE.md` file. To avoid duplicating content, create a thin `CLAUDE.md` that imports your `AGENTS.md` and adds any Claude-specific config:
