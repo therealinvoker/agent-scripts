@@ -211,14 +211,7 @@ git() {
 async function offerGitInitHook() {
   const zshrc = join(homedir(), '.zshrc');
   const existing = existsSync(zshrc) ? readFileSync(zshrc, 'utf-8') : '';
-  if (existing.includes(GIT_HOOK_MARKER)) return; // already installed
-
-  const add = await p.confirm({
-    message: 'Add a git init hook to ~/.zshrc so agent-scripts runs automatically on every new repo?',
-    initialValue: true,
-  });
-
-  if (p.isCancel(add) || !add) return;
+  if (existing.includes(GIT_HOOK_MARKER)) return;
 
   appendFileSync(zshrc, GIT_HOOK_BLOCK, 'utf-8');
   p.log.step('Added git init hook to ~/.zshrc — run `source ~/.zshrc` or restart your terminal to activate.');
