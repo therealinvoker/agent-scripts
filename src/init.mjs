@@ -1,5 +1,6 @@
 import { execFileSync } from 'node:child_process';
-import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync, appendFileSync } from 'node:fs';
+import { homedir } from 'node:os';
 import { basename, dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import * as p from '@clack/prompts';
@@ -189,8 +190,36 @@ export async function init({ force = false } = {}) {
   }
 
   if (created > 0) {
+    await offerGitInitHook();
     p.outro(`Done! Restart Claude (or your agent) in this directory and your AGENTS.md will be read every session.`);
   } else {
     p.outro(`${skipped} file(s) skipped — all already exist. Use --force to overwrite.`);
   }
+}
+
+const GIT_HOOK_MARKER = '# agent-scripts: run on git init';
+const GIT_HOOK_BLOCK = `
+${GIT_HOOK_MARKER}
+git() {
+  command git "$@"
+  if [[ "$1" == "init" ]]; then
+    npx agent-scripts init
+  fi
+}
+`;
+
+async function offerGitInitHook() {
+  const zshrc = join(homedir(), '.zshrc');
+  const existing = existsSync(zshrc) ? readFileSync(zshrc, 'utf-8') : '';
+  if (existing.includes(GIT_HOOK_MARKER)) return; // already installed
+
+  const add = await p.confirm({
+    message: 'Add a git init hook to ~/.zshrc so agent-scripts runs automatically on every new repo?',
+    initialValue: true,
+  });
+
+  if (p.isCancel(add) || !add) return;
+
+  appendFileSync(zshrc, GIT_HOOK_BLOCK, 'utf-8');
+  p.log.step('Added git init hook to ~/.zshrc — run `source ~/.zshrc` or restart your terminal to activate.');
 }
